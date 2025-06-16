@@ -249,17 +249,43 @@ public class PongGame extends Application {
         }
     }
 
+    private void showGameOver(Stage stage, String winnerText) {
+        VBox layout = new VBox(30);
+        layout.setAlignment(Pos.CENTER);
+        layout.setStyle("-fx-background-color: black;");
+
+        Label title = new Label(winnerText);
+        title.setFont(Font.font("Consolas", FontWeight.EXTRA_BOLD, 64));
+        title.setTextFill(Color.WHITE);
+        title.setEffect(new DropShadow(20, winnerText.equals("You lose!") ? Color.RED : Color.BLUE));
+
+        Button rematchBtn = new Button("Rematch");
+        Button menuBtn = new Button("Back to Menu");
+
+        Color glowColor = winnerText.equals("You lose!") ? Color.RED : Color.BLUE;
+        styleButton(rematchBtn, glowColor);
+        styleButton(menuBtn, glowColor);
+
+        rematchBtn.setOnAction(e -> launchGame(stage));
+        menuBtn.setOnAction(e -> showMainMenu(stage));
+
+        layout.getChildren().addAll(title, rematchBtn, menuBtn);
+        Scene scene = new Scene(layout, GAME_WIDTH, GAME_HEIGHT);
+        stage.setScene(scene);
+        stage.setFullScreen(true);
+    }
+
     private void endGame() {
         timer.stop();
-        String winner = score.player1 >= scoreLimit ? "Player 1" : (vsComputer ? "Computer" : "Player 2");
 
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("Game Over");
-        alert.setHeaderText(winner + " wins!");
-        alert.setContentText("Final Score - Player 1: " + score.player1 + " | Player 2: " + score.player2);
-        alert.showAndWait();
+        String winnerText;
+        if (vsComputer) {
+            winnerText = score.player1 >= scoreLimit ? "You win!" : "You lose!";
+        } else {
+            winnerText = score.player1 >= scoreLimit ? "Player 1 wins!" : "Player 2 wins!";
+        }
 
-        System.exit(0);
+        showGameOver((Stage) gc.getCanvas().getScene().getWindow(), winnerText);
     }
 
     public static void main(String[] args) {
