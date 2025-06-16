@@ -1,25 +1,94 @@
 package com.game.oopprojectjavafx;
 
+import javafx.animation.AnimationTimer;
 import javafx.application.Application;
+import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.layout.StackPane;
+import javafx.scene.control.*;
+import javafx.scene.effect.DropShadow;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
-import javafx.animation.AnimationTimer;
 
 public class PongGame extends Application {
     public static final int GAME_WIDTH = 1000;
-    public static final int GAME_HEIGHT = (int)(GAME_WIDTH * 0.5555);
+    public static final int GAME_HEIGHT = (int) (GAME_WIDTH * 0.5555);
 
     private GraphicsContext gc;
     private Paddle paddle1, paddle2;
     private Ball ball;
     private Score score;
 
+    private boolean vsComputer = false;
+    private String difficulty = "Medium";
+    private int scoreLimit = 5;
+
+    private AnimationTimer timer;
+
     @Override
     public void start(Stage stage) {
+        showMainMenu(stage);
+    }
+
+    private void showMainMenu(Stage stage) {
+        VBox menuLayout = new VBox(20);
+        menuLayout.setAlignment(Pos.CENTER);
+        menuLayout.setStyle("-fx-background-color: black;");
+
+        Label title = new Label("Ball Blitz");
+        title.setFont(Font.font("Consolas", FontWeight.EXTRA_BOLD, 64));
+        title.setTextFill(Color.WHITE);
+        DropShadow blueShadow = new DropShadow(20, Color.BLUE);
+        title.setEffect(blueShadow);
+
+        Label subtitle = new Label("2D Table Tennis Game");
+        subtitle.setFont(Font.font("Consolas", FontWeight.BOLD, 28));
+        subtitle.setTextFill(Color.WHITE);
+        subtitle.setEffect(new DropShadow(10, Color.RED));
+
+        Button pvpButton = new Button("Player vs Player");
+        Button pvcButton = new Button("Player vs Computer");
+        ComboBox<Integer> scoreLimitCombo = new ComboBox<>();
+        for (int i = 3; i <= 15; i++) scoreLimitCombo.getItems().add(i);
+        scoreLimitCombo.setValue(5);
+
+        styleButton(pvpButton, Color.BLUE);
+        styleButton(pvcButton, Color.RED);
+        scoreLimitCombo.setStyle("-fx-font-size: 16px; -fx-background-color: white; -fx-pref-width: 200px;");
+
+        pvpButton.setOnAction(e -> {
+            vsComputer = false;
+            scoreLimit = scoreLimitCombo.getValue();
+            launchGame(stage);
+        });
+
+        pvcButton.setOnAction(e -> {
+            vsComputer = true;
+            difficulty = "Medium";
+            scoreLimit = scoreLimitCombo.getValue();
+            launchGame(stage);
+        });
+
+        menuLayout.getChildren().addAll(title, subtitle, pvpButton, pvcButton, new Label("Score Limit:"), scoreLimitCombo);
+        Scene menuScene = new Scene(menuLayout, GAME_WIDTH, GAME_HEIGHT);
+        stage.setScene(menuScene);
+        stage.setFullScreen(true);
+        stage.setTitle("Ball Blitz - Menu");
+        stage.show();
+    }
+
+    private void styleButton(Button button, Color glowColor) {
+        button.setStyle("-fx-background-color: black; -fx-text-fill: white; -fx-font-size: 20px; -fx-border-color: white; -fx-border-width: 2px;");
+        DropShadow glow = new DropShadow(20, glowColor);
+        button.setEffect(glow);
+        button.setPrefWidth(250);
+    }
+
+    public void launchGame(Stage stage) {
         Canvas canvas = new Canvas(GAME_WIDTH, GAME_HEIGHT);
         gc = canvas.getGraphicsContext2D();
 
@@ -33,8 +102,12 @@ public class PongGame extends Application {
             switch (e.getCode()) {
                 case W -> paddle1.setYDirection(-paddle1.getSpeed());
                 case S -> paddle1.setYDirection(paddle1.getSpeed());
-                case UP -> paddle2.setYDirection(-paddle2.getSpeed());
-                case DOWN -> paddle2.setYDirection(paddle2.getSpeed());
+                case UP -> {
+                    if (!vsComputer) paddle2.setYDirection(-paddle2.getSpeed());
+                }
+                case DOWN -> {
+                    if (!vsComputer) paddle2.setYDirection(paddle2.getSpeed());
+                }
             }
         });
         scene.setOnKeyReleased(e -> {
@@ -44,23 +117,24 @@ public class PongGame extends Application {
             }
         });
 
-        stage.setTitle("Pong Game");
         stage.setScene(scene);
-//        stage.setResizable(false);
-        stage.show();
+        stage.setFullScreen(true);
 
-        new AnimationTimer() {
+        timer = new AnimationTimer() {
             public void handle(long now) {
                 update();
                 render();
             }
-        }.start();
+        };
+        timer.start();
     }
 
     private void update() {
         paddle1.move();
-        paddle2.move();
+        if (!vsComputer) paddle2.move();
         ball.move();
+
+        if (vsComputer) moveAI();
 
         if (ball.getY() <= 0 || ball.getY() >= GAME_HEIGHT - ball.getHeight()) {
             ball.setYDirection(-ball.getYVelocity());
@@ -88,6 +162,10 @@ public class PongGame extends Application {
             score.player1++;
             resetPositions();
         }
+
+        if (score.player1 >= scoreLimit || score.player2 >= scoreLimit) {
+            endGame();
+        }
     }
 
     private void render() {
@@ -104,6 +182,37 @@ public class PongGame extends Application {
         paddle1 = new Paddle(0, (GAME_HEIGHT / 2) - 50, 25, 100, 1);
         paddle2 = new Paddle(GAME_WIDTH - 25, (GAME_HEIGHT / 2) - 50, 25, 100, 2);
         ball = new Ball((GAME_WIDTH / 2) - 10, (GAME_HEIGHT / 2) - 10, 20, 20);
+    }
+
+    private void moveAI() {
+        double targetY = ball.getY() - paddle2.getHeight() / 2.0;
+        double diff = targetY - paddle2.getY();
+
+        int aiSpeed;
+        switch (difficulty) {
+            case "Easy" -> aiSpeed = 3;
+            case "Hard" -> aiSpeed = 9;
+            default -> aiSpeed = 6;
+        }
+
+        if (Math.abs(diff) > aiSpeed) {
+            paddle2.setY(paddle2.getY() + (diff > 0 ? aiSpeed : -aiSpeed));
+        } else {
+            paddle2.setY(targetY);
+        }
+    }
+
+    private void endGame() {
+        timer.stop();
+        String winner = score.player1 >= scoreLimit ? "Player 1" : (vsComputer ? "Computer" : "Player 2");
+
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Game Over");
+        alert.setHeaderText(winner + " wins!");
+        alert.setContentText("Final Score - Player 1: " + score.player1 + " | Player 2: " + score.player2);
+        alert.showAndWait();
+
+        System.exit(0);
     }
 
     public static void main(String[] args) {
