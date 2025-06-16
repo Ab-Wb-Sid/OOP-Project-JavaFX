@@ -2,6 +2,7 @@ package com.game.oopprojectjavafx;
 
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
@@ -16,6 +17,8 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
+
+// ... all imports remain the same
 
 public class PongGame extends Application {
     public static final int GAME_WIDTH = 1000;
@@ -91,9 +94,7 @@ public class PongGame extends Application {
 
         Scene menuScene = new Scene(menuLayout, GAME_WIDTH, GAME_HEIGHT);
         stage.setScene(menuScene);
-        stage.setWidth(GAME_WIDTH);
-        stage.setHeight(GAME_HEIGHT);
-        stage.setResizable(false);
+        stage.setResizable(true);
         stage.setTitle("Ball Blitz - Menu");
         stage.show();
     }
@@ -128,17 +129,21 @@ public class PongGame extends Application {
         ball = new Ball((GAME_WIDTH / 2) - 10, (GAME_HEIGHT / 2) - 10, 20, 20);
         score = new Score(GAME_WIDTH, GAME_HEIGHT);
 
-        Scene scene = new Scene(new StackPane(canvas));
+        StackPane root = new StackPane(canvas);
+        Scene scene = new Scene(root, GAME_WIDTH, GAME_HEIGHT);
+
+        // ✳️ Make canvas fill window
+        canvas.widthProperty().bind(root.widthProperty());
+        canvas.heightProperty().bind(root.heightProperty());
+
+        // 🎮 Handle input
         scene.setOnKeyPressed(e -> {
             switch (e.getCode()) {
                 case W -> paddle1.setYDirection(-paddle1.getSpeed());
                 case S -> paddle1.setYDirection(paddle1.getSpeed());
-                case UP -> {
-                    if (!vsComputer) paddle2.setYDirection(-paddle2.getSpeed());
-                }
-                case DOWN -> {
-                    if (!vsComputer) paddle2.setYDirection(paddle2.getSpeed());
-                }
+                case UP -> { if (!vsComputer) paddle2.setYDirection(-paddle2.getSpeed()); }
+                case DOWN -> { if (!vsComputer) paddle2.setYDirection(paddle2.getSpeed()); }
+                case ESCAPE -> Platform.exit();
             }
         });
         scene.setOnKeyReleased(e -> {
@@ -149,7 +154,9 @@ public class PongGame extends Application {
         });
 
         stage.setScene(scene);
-        stage.setFullScreen(true);
+        stage.setFullScreen(true); // ✅ Enable fullscreen
+        stage.setFullScreenExitHint(""); // Optional: hide hint
+        stage.show();
 
         timer = new AnimationTimer() {
             public void handle(long now) {
@@ -200,6 +207,13 @@ public class PongGame extends Application {
     }
 
     private void render() {
+        // 🖼 Scale drawing based on current canvas size
+        double scaleX = gc.getCanvas().getWidth() / GAME_WIDTH;
+        double scaleY = gc.getCanvas().getHeight() / GAME_HEIGHT;
+
+        gc.save(); // Save original transform
+        gc.setTransform(scaleX, 0, 0, scaleY, 0, 0); // Scale canvas
+
         gc.setFill(Color.BLACK);
         gc.fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
 
@@ -207,6 +221,8 @@ public class PongGame extends Application {
         paddle2.draw(gc);
         ball.draw(gc);
         score.draw(gc);
+
+        gc.restore(); // Restore to normal
     }
 
     private void resetPositions() {
