@@ -8,6 +8,8 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.*;
 import javafx.scene.effect.DropShadow;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
@@ -36,16 +38,14 @@ public class PongGame extends Application {
     }
 
     private void showMainMenu(Stage stage) {
-        VBox menuLayout = new VBox(20);
-        menuLayout.setAlignment(Pos.CENTER);
-        menuLayout.setStyle("-fx-background-color: black;");
+        VBox buttonMenu = new VBox(20);
+        buttonMenu.setAlignment(Pos.CENTER);
 
         Label title = new Label("Ball Blitz");
         title.setFont(Font.font("Consolas", FontWeight.EXTRA_BOLD, 64));
         title.setTextFill(Color.WHITE);
-        DropShadow blueShadow = new DropShadow(20, Color.BLUE);
-        title.setEffect(blueShadow);
-        VBox.setMargin(title, new javafx.geometry.Insets(0, 0, -10, 0)); // Move title up slightly
+        title.setEffect(new DropShadow(20, Color.BLUE));
+        VBox.setMargin(title, new javafx.geometry.Insets(0, 0, -10, 0));
 
         Label subtitle = new Label("2D Table Tennis Game");
         subtitle.setFont(Font.font("Consolas", FontWeight.BOLD, 28));
@@ -75,7 +75,20 @@ public class PongGame extends Application {
             launchGame(stage);
         });
 
-        menuLayout.getChildren().addAll(title, subtitle, pvpButton, pvcButton, new Label("Score Limit:"), scoreLimitCombo);
+        buttonMenu.getChildren().addAll(title, subtitle, pvpButton, pvcButton, new Label("Score Limit:"), scoreLimitCombo);
+
+        HBox menuLayout = new HBox(50);
+        menuLayout.setAlignment(Pos.CENTER);
+        menuLayout.setStyle("-fx-background-color: black;");
+
+        Image leftImage = new Image(getClass().getResource("/com/game/oopprojectjavafx/image.png").toExternalForm(), 200, 0, true, true);
+        ImageView leftImageView = new ImageView(leftImage);
+
+        Image rightImage = new Image(getClass().getResource("/com/game/oopprojectjavafx/image.png").toExternalForm(), 200, 0, true, true);
+        ImageView rightImageView = new ImageView(rightImage);
+
+        menuLayout.getChildren().addAll(leftImageView, buttonMenu, rightImageView);
+
         Scene menuScene = new Scene(menuLayout, GAME_WIDTH, GAME_HEIGHT);
         stage.setScene(menuScene);
         stage.setWidth(GAME_WIDTH);
