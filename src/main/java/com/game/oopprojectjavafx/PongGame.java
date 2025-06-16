@@ -8,6 +8,7 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.*;
 import javafx.scene.effect.DropShadow;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
@@ -44,6 +45,7 @@ public class PongGame extends Application {
         title.setTextFill(Color.WHITE);
         DropShadow blueShadow = new DropShadow(20, Color.BLUE);
         title.setEffect(blueShadow);
+        VBox.setMargin(title, new javafx.geometry.Insets(0, 0, -10, 0)); // Move title up slightly
 
         Label subtitle = new Label("2D Table Tennis Game");
         subtitle.setFont(Font.font("Consolas", FontWeight.BOLD, 28));
@@ -76,7 +78,9 @@ public class PongGame extends Application {
         menuLayout.getChildren().addAll(title, subtitle, pvpButton, pvcButton, new Label("Score Limit:"), scoreLimitCombo);
         Scene menuScene = new Scene(menuLayout, GAME_WIDTH, GAME_HEIGHT);
         stage.setScene(menuScene);
-        stage.setFullScreen(true);
+        stage.setWidth(GAME_WIDTH);
+        stage.setHeight(GAME_HEIGHT);
+        stage.setResizable(false);
         stage.setTitle("Ball Blitz - Menu");
         stage.show();
     }
@@ -86,6 +90,20 @@ public class PongGame extends Application {
         DropShadow glow = new DropShadow(20, glowColor);
         button.setEffect(glow);
         button.setPrefWidth(250);
+
+        button.addEventHandler(MouseEvent.MOUSE_ENTERED, e ->
+                button.setStyle("-fx-background-color: " + toRgbCode(glowColor) + "; -fx-text-fill: black; -fx-font-size: 20px; -fx-border-color: white; -fx-border-width: 2px;")
+        );
+        button.addEventHandler(MouseEvent.MOUSE_EXITED, e ->
+                button.setStyle("-fx-background-color: black; -fx-text-fill: white; -fx-font-size: 20px; -fx-border-color: white; -fx-border-width: 2px;")
+        );
+    }
+
+    private String toRgbCode(Color color) {
+        return String.format("#%02X%02X%02X",
+                (int) (color.getRed() * 255),
+                (int) (color.getGreen() * 255),
+                (int) (color.getBlue() * 255));
     }
 
     public void launchGame(Stage stage) {
