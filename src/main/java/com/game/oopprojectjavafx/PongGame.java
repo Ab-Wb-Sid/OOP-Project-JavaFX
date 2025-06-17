@@ -279,14 +279,30 @@ public class PongGame extends Application {
         timer.stop();
 
         String winnerText;
+        String winnerLogText;
+
         if (vsComputer) {
-            winnerText = score.player1 >= scoreLimit ? "You win!" : "You lose!";
+            if (score.player1 >= scoreLimit) {
+                winnerText = "You win!";
+                winnerLogText = "Player (vs Computer)";
+            } else {
+                winnerText = "You lose!";
+                winnerLogText = "Computer";
+            }
         } else {
-            winnerText = score.player1 >= scoreLimit ? "Player 1 wins!" : "Player 2 wins!";
+            if (score.player1 >= scoreLimit) {
+                winnerText = "Player 1 wins!";
+                winnerLogText = "Player 1";
+            } else {
+                winnerText = "Player 2 wins!";
+                winnerLogText = "Player 2";
+            }
         }
 
+        WinHistory.logWin(winnerLogText);  // ✅ Log to file
         showGameOver((Stage) gc.getCanvas().getScene().getWindow(), winnerText);
     }
+
 
     public static void main(String[] args) {
         launch(args);
