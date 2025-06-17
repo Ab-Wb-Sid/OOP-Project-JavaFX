@@ -18,8 +18,6 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
 
-// ... all imports remain the same
-
 public class PongGame extends Application {
     public static final int GAME_WIDTH = 1000;
     public static final int GAME_HEIGHT = (int) (GAME_WIDTH * 0.5555);
@@ -57,13 +55,19 @@ public class PongGame extends Application {
 
         Button pvpButton = new Button("Player vs Player");
         Button pvcButton = new Button("Player vs Computer");
+
         ComboBox<Integer> scoreLimitCombo = new ComboBox<>();
         for (int i = 3; i <= 15; i++) scoreLimitCombo.getItems().add(i);
         scoreLimitCombo.setValue(5);
+        scoreLimitCombo.setStyle("-fx-font-size: 16px; -fx-background-color: white; -fx-pref-width: 200px;");
+
+        ComboBox<String> difficultyCombo = new ComboBox<>();
+        difficultyCombo.getItems().addAll("Easy", "Medium", "Hard");
+        difficultyCombo.setValue("Medium");
+        difficultyCombo.setStyle("-fx-font-size: 16px; -fx-background-color: white; -fx-pref-width: 200px;");
 
         styleButton(pvpButton, Color.BLUE);
         styleButton(pvcButton, Color.RED);
-        scoreLimitCombo.setStyle("-fx-font-size: 16px; -fx-background-color: white; -fx-pref-width: 200px;");
 
         pvpButton.setOnAction(e -> {
             vsComputer = false;
@@ -73,12 +77,21 @@ public class PongGame extends Application {
 
         pvcButton.setOnAction(e -> {
             vsComputer = true;
-            difficulty = "Medium";
+            difficulty = difficultyCombo.getValue();
             scoreLimit = scoreLimitCombo.getValue();
             launchGame(stage);
         });
 
-        buttonMenu.getChildren().addAll(title, subtitle, pvpButton, pvcButton, new Label("Score Limit:"), scoreLimitCombo);
+        buttonMenu.getChildren().addAll(
+                title,
+                subtitle,
+                pvpButton,
+                pvcButton,
+                new Label("Score Limit:"),
+                scoreLimitCombo,
+                new Label("Difficulty (vs Computer):"),
+                difficultyCombo
+        );
 
         HBox menuLayout = new HBox(50);
         menuLayout.setAlignment(Pos.CENTER);
@@ -132,11 +145,9 @@ public class PongGame extends Application {
         StackPane root = new StackPane(canvas);
         Scene scene = new Scene(root, GAME_WIDTH, GAME_HEIGHT);
 
-        // ✳️ Make canvas fill window
         canvas.widthProperty().bind(root.widthProperty());
         canvas.heightProperty().bind(root.heightProperty());
 
-        // 🎮 Handle input
         scene.setOnKeyPressed(e -> {
             switch (e.getCode()) {
                 case W -> paddle1.setYDirection(-paddle1.getSpeed());
@@ -146,6 +157,7 @@ public class PongGame extends Application {
                 case ESCAPE -> Platform.exit();
             }
         });
+
         scene.setOnKeyReleased(e -> {
             switch (e.getCode()) {
                 case W, S -> paddle1.setYDirection(0);
@@ -154,8 +166,8 @@ public class PongGame extends Application {
         });
 
         stage.setScene(scene);
-        stage.setFullScreen(true); // ✅ Enable fullscreen
-        stage.setFullScreenExitHint(""); // Optional: hide hint
+        stage.setFullScreen(true);
+        stage.setFullScreenExitHint("");
         stage.show();
 
         timer = new AnimationTimer() {
@@ -182,6 +194,7 @@ public class PongGame extends Application {
             ball.setXDirection(Math.abs(ball.getXVelocity()) + 1);
             ball.setYDirection(ball.getYVelocity() > 0 ? ball.getYVelocity() + 1 : ball.getYVelocity() - 1);
         }
+
         if (ball.intersects(paddle2)) {
             ball.setXDirection(-(Math.abs(ball.getXVelocity()) + 1));
             ball.setYDirection(ball.getYVelocity() > 0 ? ball.getYVelocity() + 1 : ball.getYVelocity() - 1);
@@ -207,13 +220,11 @@ public class PongGame extends Application {
     }
 
     private void render() {
-        // 🖼 Scale drawing based on current canvas size
         double scaleX = gc.getCanvas().getWidth() / GAME_WIDTH;
         double scaleY = gc.getCanvas().getHeight() / GAME_HEIGHT;
 
-        gc.save(); // Save original transform
-        gc.setTransform(scaleX, 0, 0, scaleY, 0, 0); // Scale canvas
-
+        gc.save();
+        gc.setTransform(scaleX, 0, 0, scaleY, 0, 0);
         gc.setFill(Color.BLACK);
         gc.fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
 
@@ -222,7 +233,7 @@ public class PongGame extends Application {
         ball.draw(gc);
         score.draw(gc);
 
-        gc.restore(); // Restore to normal
+        gc.restore();
     }
 
     private void resetPositions() {
@@ -299,10 +310,9 @@ public class PongGame extends Application {
             }
         }
 
-        WinHistory.logWin(winnerLogText);  // ✅ Log to file
+        WinHistory.logWin(winnerLogText);
         showGameOver((Stage) gc.getCanvas().getScene().getWindow(), winnerText);
     }
-
 
     public static void main(String[] args) {
         launch(args);
