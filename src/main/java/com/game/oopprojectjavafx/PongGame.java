@@ -43,7 +43,7 @@ public class PongGame extends Application {
         buttonMenu.setAlignment(Pos.CENTER);
 
         Label title = new Label("Ball Blitz");
-        title.setFont(Font.font("Consolas", FontWeight.EXTRA_BOLD, 64));
+        title.setFont(Font.font("Sans Serif", FontWeight.EXTRA_BOLD, 64));
         title.setTextFill(Color.WHITE);
         title.setEffect(new DropShadow(20, Color.BLUE));
         VBox.setMargin(title, new javafx.geometry.Insets(0, 0, -10, 0));
@@ -82,16 +82,25 @@ public class PongGame extends Application {
             launchGame(stage);
         });
 
+        Label scoreLimitLabel = new Label("Score Limit:");
+        scoreLimitLabel.setTextFill(Color.WHITE);
+        scoreLimitLabel.setFont(Font.font("Consolas", FontWeight.BOLD, 16));
+
+        Label difficultyLabel = new Label("Difficulty (vs Computer):");
+        difficultyLabel.setTextFill(Color.WHITE);
+        difficultyLabel.setFont(Font.font("Consolas", FontWeight.BOLD, 16));
+
         buttonMenu.getChildren().addAll(
                 title,
                 subtitle,
                 pvpButton,
                 pvcButton,
-                new Label("Score Limit:"),
+                scoreLimitLabel,
                 scoreLimitCombo,
-                new Label("Difficulty (vs Computer):"),
+                difficultyLabel,
                 difficultyCombo
         );
+
 
         HBox menuLayout = new HBox(50);
         menuLayout.setAlignment(Pos.CENTER);
@@ -108,7 +117,7 @@ public class PongGame extends Application {
         Scene menuScene = new Scene(menuLayout, GAME_WIDTH, GAME_HEIGHT);
         stage.setScene(menuScene);
         stage.setResizable(true);
-        stage.setTitle("Ball Blitz - Menu");
+        stage.setTitle("Ball Blitz");
         stage.show();
     }
 
