@@ -105,7 +105,7 @@ _(Add screenshots/GIFs here once available)_
 ---
 
 ## 👨‍💻 Contributors
-- Abdul Wahab Siddiqi – [LinkedIn]([https://www.linkedin.com/](https://www.linkedin.com/in/abdulwahabsiddiqi))  
+- Abdul Wahab Siddiqi – [LinkedIn](https://www.linkedin.com/in/abdulwahabsiddiqi)  
 - Muhammad Avais Raza – [LinkedIn](https://www.linkedin.com/)  
 
 ---
