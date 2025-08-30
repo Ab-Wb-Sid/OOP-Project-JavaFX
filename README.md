@@ -111,3 +111,8 @@ _(Add screenshots/GIFs here once available)_
 ---
 
 🔥 *If you like this project, don’t forget to star ⭐ the repo!*  
+
+---
+
+## 📄 License
+This project is licensed under the **MIT License** – see the [LICENSE](./LICENSE) file for details.
