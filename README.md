@@ -55,7 +55,7 @@ The game integrates real-time animation, collision detection, and win history tr
 ## ⚙️ Installation & Setup
 1. Clone this repository:  
    ```bash
-   git clone https://github.com/YourUsername/BallBlitz.git
+   git clone [https://github.com/YourUsername/BallBlitz.git](https://github.com/Ab-Wb-Sid/OOP-Project-JavaFX.git)
    cd BallBlitz
 2. Ensure you have:  
    - Java 17 or later installed  
@@ -105,7 +105,7 @@ _(Add screenshots/GIFs here once available)_
 ---
 
 ## 👨‍💻 Contributors
-- Abdul Wahab Siddiqi – [LinkedIn](https://www.linkedin.com/)  
+- Abdul Wahab Siddiqi – [LinkedIn]([https://www.linkedin.com/](https://www.linkedin.com/in/abdulwahabsiddiqi))  
 - Muhammad Avais Raza – [LinkedIn](https://www.linkedin.com/)  
 
 ---
